@@ -48,7 +48,9 @@ GPasteSearchItem.prototype = {
         this.entry.clutter_text.connect('text-changed', Lang.bind(this, this.onTextChanged));
         this.addActor(this.entry, { expand: true, span: -1 });
         
+        //
         // Binding ID of the remove icon
+
         this.iconClickedID = 0;
     },
 
@@ -73,12 +75,11 @@ GPasteSearchItem.prototype = {
             this.iconClickedID = this.entry.connect('secondary-icon-clicked', Lang.bind(this, this.reset));
         }
         this.emit('text-changed');
-        global.logError(this.entry.get_text());
 
     },
 
     /*
-     * The serahc field was selected via keyboard
+     * The search field was selected via keyboard
      */
     _onKeyFocusIn: function (actor) {
         global.stage.set_key_focus(this.entry);

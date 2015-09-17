@@ -115,7 +115,7 @@ GPasteApplet.prototype = {
     },
 
     /*
-     * Add all necessary meni items to the menu
+     * Add all necessary menu items to the menu
      */
     populateMenu: function() {
         this.menu.addMenuItem(this.mitemTrack);
