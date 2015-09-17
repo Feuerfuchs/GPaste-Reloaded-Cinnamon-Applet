@@ -26,7 +26,6 @@ GPasteSearchItem.prototype = {
 
         this.entry = new St.Entry({
             name:        'GPasteSearchEntry',
-            style_class: 'search-entry',
             track_hover: true,
             can_focus:   true
         });
@@ -35,8 +34,7 @@ GPasteSearchItem.prototype = {
         // Search icon (left)
 
         this.entry.set_primary_icon(new St.Icon({
-            style_class: 'menu-search-entry-icon',
-            icon_name:   'edit-find-symbolic'
+            icon_name: 'edit-find-symbolic'
         }));
 
         //
@@ -48,7 +46,7 @@ GPasteSearchItem.prototype = {
         });
 
         this.entry.clutter_text.connect('text-changed', Lang.bind(this, this.onTextChanged));
-        this.addActor(this.entry, { expand: true });
+        this.addActor(this.entry, { expand: true, span: -1 });
         
         // Binding ID of the remove icon
         this.iconClickedID = 0;
