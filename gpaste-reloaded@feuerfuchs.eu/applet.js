@@ -37,6 +37,13 @@ GPasteApplet.prototype = {
             this.set_applet_tooltip(_("GPaste clipboard"));
 
             //
+            // Applet menu
+
+            this._applet_context_menu.addMenuItem(new Applet.MenuItem(_("GPaste Settings"), null, Lang.bind(this, function(actor, event) {
+                this.openSettings();
+            })));
+
+            //
             // Prepare Menu
 
             this.menuManager         = new PopupMenu.PopupMenuManager(this);
