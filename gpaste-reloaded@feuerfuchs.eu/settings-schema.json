@@ -14,12 +14,12 @@
         "description": "Display search bar"
     },
     "display-gpaste-ui": {
-        "default":     true,
+        "default":     false,
         "type":        "checkbox",
         "description": "Display 'GPaste User Interface'"
     },
     "display-gpaste-settings": {
-        "default":     true,
+        "default":     false,
         "type":        "checkbox",
         "description": "Display 'GPaste Settings'"
     },
