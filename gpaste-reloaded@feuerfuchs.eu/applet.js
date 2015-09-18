@@ -101,15 +101,16 @@ GPasteApplet.prototype = {
                 //
                 // Applet menu
 
+                let i = -1;
                 if (this.compareVersion("3.16") != -1) {
                     this._applet_context_menu.addMenuItem(new Applet.MenuItem(_("GPaste User Interface"), null, Lang.bind(this, function(actor, event) {
                         this.openUI();
-                    })), 0);
+                    })), ++i);
                 }
                 this._applet_context_menu.addMenuItem(new Applet.MenuItem(_("GPaste Settings"), null, Lang.bind(this, function(actor, event) {
                     this.openSettings();
-                })), 1);
-                this._applet_context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), 2);
+                })), ++i);
+                this._applet_context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), ++i);
             }));
 
             //
