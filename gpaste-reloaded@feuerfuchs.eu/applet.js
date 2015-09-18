@@ -79,6 +79,10 @@ GPasteApplet.prototype = {
 
                 this.createHistory();
                 this.populateMenu();
+
+                let version = this.client.get_version().split(".");
+
+ global.logError(version[1]);
             }));
 
             //
