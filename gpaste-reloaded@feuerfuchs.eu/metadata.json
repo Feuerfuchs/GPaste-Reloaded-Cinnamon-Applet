@@ -3,6 +3,6 @@
     "name":          "GPaste Reloaded",
     "description":   "A complete rewrite of the GPaste applet based on the Gnome Shell extension",
     "icon":          "edit-paste",
-    "version":       "1.1",
+    "version":       "1.2",
     "max-instances": -1
 }
