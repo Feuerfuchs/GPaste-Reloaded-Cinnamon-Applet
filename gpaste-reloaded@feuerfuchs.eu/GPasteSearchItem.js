@@ -3,7 +3,7 @@ const St        = imports.gi.St;
 const PopupMenu = imports.ui.popupMenu;
 const Gettext   = imports.gettext;
 
-const _         = Gettext.domain('GPaste').gettext;
+const _         = Gettext.gettext;
 
 // ------------------------------------------------------------------------------------------------------
 
@@ -26,16 +26,22 @@ GPasteSearchItem.prototype = {
 
         this.entry = new St.Entry({
             name:        'GPasteSearchEntry',
+            hint_text:   _("Type to search..."),
             track_hover: true,
             can_focus:   true
+        });
+        this.addActor(this.entry, {
+            expand: true,
+            span:   -1
         });
 
         //
         // Search icon (left)
 
-        this.entry.set_primary_icon(new St.Icon({
+        this.iconSearch = new St.Icon({
             icon_name: 'edit-find-symbolic'
-        }));
+        });
+        this.entry.set_secondary_icon(this.iconSearch);
 
         //
         // Clear icon (right)
@@ -45,13 +51,15 @@ GPasteSearchItem.prototype = {
             icon_name:   'edit-clear-symbolic'
         });
 
+        //
+        // 
+
         this.entry.clutter_text.connect('text-changed', Lang.bind(this, this.onTextChanged));
-        this.addActor(this.entry, { expand: true, span: -1 });
         
         //
         // Binding ID of the remove icon
 
-        this.iconClickedID = 0;
+        this.iconClearClickedID = 0;
     },
 
     /*
@@ -59,6 +67,13 @@ GPasteSearchItem.prototype = {
      */
     reset: function() {
         this.entry.set_text("");
+    },
+
+    /*
+     * Append string to current search string
+     */
+    appendText: function(text) {
+        this.entry.set_text(this.entry.get_text() + text);
     },
 
     //
@@ -70,12 +85,20 @@ GPasteSearchItem.prototype = {
      */
     onTextChanged: function(se, prop) {
         let emptyText = (this.entry.get_text() == '');
-        this.entry.set_secondary_icon((emptyText) ? null : this.iconClear);
-        if (!emptyText && this.iconClickedID == 0) {
-            this.iconClickedID = this.entry.connect('secondary-icon-clicked', Lang.bind(this, this.reset));
+        if (!emptyText) {
+            if (this.iconClearClickedID == 0) {
+                this.entry.set_secondary_icon(this.iconClear);
+                this.iconClearClickedID = this.entry.connect('secondary-icon-clicked', Lang.bind(this, this.reset));
+            }
+        }
+        else {
+            if (this.iconClearClickedID != 0) {
+                this.entry.set_secondary_icon(this.iconSearch);
+                this.entry.disconnect(this.iconClearClickedID);
+                this.iconClearClickedID = 0;
+            }
         }
         this.emit('text-changed');
-
     },
 
     /*
