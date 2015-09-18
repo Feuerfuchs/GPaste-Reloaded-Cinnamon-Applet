@@ -79,10 +79,6 @@ GPasteApplet.prototype = {
 
                 this.createHistory();
                 this.populateMenu();
-
-                let version = this.client.get_version().split(".");
-
- global.logError(version[1]);
             }));
 
             //
@@ -99,6 +95,26 @@ GPasteApplet.prototype = {
         catch (e) {
             global.logError(e);
         }
+    },
+
+    /*
+     * Compares the current GPaste version with the given version string (only first 2 digits).
+     * -1 = older, 0 = same, 1 = newer
+     */
+    compareVersion: function(version) {
+        version        = version.split(".");
+        let curVersion = this.client.get_version().split(".");
+        let maxLen     = Math.min(curVersion.length, version.length);
+
+        for (var i = 0; i < maxLen; i++) {
+            let cv = parseInt(curVersion[i], 10);
+            let v  = parseInt(version[i],    10);
+            if (cv == v) {
+                continue;
+            }
+            return ((cv < v) ? -1 : 1);
+        }
+        return 0;
     },
 
     /*
@@ -139,7 +155,9 @@ GPasteApplet.prototype = {
 
         this.menu.addMenuItem(this.mitemHistoryIsEmpty);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        this.menu.addMenuItem(this.mitemUI);
+        if (this.compareVersion("3.16") != -1) { 
+            this.menu.addMenuItem(this.mitemUI);
+        }
         this.menu.addMenuItem(this.mitemSettings);
         this.menu.addMenuItem(this.mitemEmptyHistory);
     },
