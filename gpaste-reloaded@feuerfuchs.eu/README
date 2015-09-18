@@ -3,19 +3,11 @@ This is a completely re-written GPaste applet based on the gnome shell extension
 GPaste is a clipboard management tool. This applet lets you access your clipboard through an icon in the panel.
 
 
-Installation
-================
+# Installation
 	
 For this applet to work, it is necessary that the GPaste daemon is installed!
 
-GPaste Github page:
-    – https://github.com/Keruspe/GPaste
-
-Ubuntu, Linux Mint, etc. users may install it via the Webupd8 PPA as described here:
-    – http://www.webupd8.org/2011/10/install-gpaste-in-ubuntu-native-gnome.html
-
-For Arch Linux, Manjaro, Antergos, etc. users it is now available in the repositories as "gpaste".
-
+GPaste Github page: https://github.com/Keruspe/GPaste
 
 To install the applet itself, perform the following steps:
 
