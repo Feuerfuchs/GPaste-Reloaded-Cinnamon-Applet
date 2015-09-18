@@ -2,7 +2,7 @@
     "uuid":          "gpaste-reloaded@feuerfuchs.eu",
     "name":          "GPaste Reloaded",
     "description":   "A complete rewrite of the GPaste applet based on the Gnome Shell extension",
-    "website":       "https://github.com/Feuerfuchs/GPaste-Reloaded-Cinnamon-Appl",
+    "website":       "https://github.com/Feuerfuchs/GPaste-Reloaded-Cinnamon-Applet",
     "icon":          "edit-paste",
     "version":       "1.3",
     "max-instances": -1
