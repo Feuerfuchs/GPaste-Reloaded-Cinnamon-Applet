@@ -1,3 +1,4 @@
+const Util              = imports.misc.util;
 const Lang              = imports.lang;
 const St                = imports.gi.St;
 const PopupMenu         = imports.ui.popupMenu;
@@ -189,14 +190,24 @@ GPasteApplet.prototype = {
      * Open GPaste's own GUI
      */
     openUI: function() {
-        GPaste.util_spawn('Ui');
+        try {
+            GPaste.util_spawn('Ui');
+        }
+        catch (e) {
+            Util.spawnCommandLine("gpaste ui");
+        }
     },
 
     /*
      * Open GPaste's settings
      */
     openSettings: function() {
-        GPaste.util_spawn('Settings');
+        try {
+            GPaste.util_spawn('Settings');
+        }
+        catch (e) {
+            Util.spawnCommandLine("gpaste settings");
+        }
     },
 
     //
