@@ -1,29 +1,32 @@
+const uuid              = "gpaste-reloaded@feuerfuchs.eu";
+
 const Util              = imports.misc.util;
 const Lang              = imports.lang;
 const St                = imports.gi.St;
 const PopupMenu         = imports.ui.popupMenu;
 const Gettext           = imports.gettext;
 const Applet            = imports.ui.applet;
+const Settings          = imports.ui.settings;
 
 const GPaste            = imports.gi.GPaste;
 
 const _                 = Gettext.domain('GPaste').gettext;
 
-const AppletDir         = imports.ui.appletManager.applets['gpaste-reloaded@feuerfuchs.eu'];
+const AppletDir         = imports.ui.appletManager.applets[uuid];
 const GPasteMenu        = AppletDir.GPasteMenu;
 const GPasteSearchItem  = AppletDir.GPasteSearchItem;
 const GPasteHistoryItem = AppletDir.GPasteHistoryItem;
 
 // ------------------------------------------------------------------------------------------------------
 
-function GPasteApplet(orientation) {
-    this._init(orientation);
+function GPasteApplet(orientation, panel_height, instance_id) {
+    this._init(orientation, panel_height, instance_id);
 }
 
 GPasteApplet.prototype = {
     __proto__: Applet.IconApplet.prototype,
 
-    _init: function(orientation) {
+    _init: function(orientation, panel_height, instance_id) {
         Applet.IconApplet.prototype._init.call(this, orientation);
 
         try {
@@ -47,8 +50,12 @@ GPasteApplet.prototype = {
             this.mitemSearch         = new GPasteSearchItem.GPasteSearchItem();
             this.mitemSearch.connect('text-changed', Lang.bind(this, this.onSearch));
 
+            this.msepTop             = new PopupMenu.PopupSeparatorMenuItem();
+
             this.mitemHistoryIsEmpty = new PopupMenu.PopupMenuItem(_("(Empty)"));
             this.mitemHistoryIsEmpty.setSensitive(false);
+
+            this.msepBottom          = new PopupMenu.PopupSeparatorMenuItem();
 
             this.mitemUI             = new PopupMenu.PopupMenuItem(_("GPaste User Interface"));
             this.mitemUI.connect('activate', Lang.bind(this, this.openUI));
@@ -60,11 +67,22 @@ GPasteApplet.prototype = {
             this.mitemEmptyHistory.connect('activate', Lang.bind(this, this.empty));
 
             //
+            // Applet settings
+
+            this.appletSettings = new Settings.AppletSettings(this, uuid, instance_id);
+
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-track-switch",    "displayTrackSwitch",    this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-searchbar",       "displaySearchBar",      this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-ui",       "displayGPasteUI",       this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-settings", "displayGPasteSettings", this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-empty-history",   "displayEmptyHistory",   this.onDisplaySettingsUpdated, null);
+
+            //
             // Create GPaste Client
 
-            this.settings            = new GPaste.Settings();
-            this.searchResults       = [];
-            this.history             = [];
+            this.settings      = new GPaste.Settings();
+            this.searchResults = [];
+            this.history       = [];
 
             GPaste.Client.new(Lang.bind(this, function (obj, result) {
                 this.client                   = GPaste.Client.new_finish(result);
@@ -86,7 +104,9 @@ GPasteApplet.prototype = {
 
             this.menu.connect('open-state-changed', Lang.bind(this, function(menu, open) {
                 if (open) {
-                    global.stage.set_key_focus(this.mitemSearch.entry);
+                    if (this.displaySearchBar) {
+                        global.stage.set_key_focus(this.mitemSearch.entry);
+                    }
                 } else {
                     this.mitemSearch.reset();
                 }
@@ -115,6 +135,19 @@ GPasteApplet.prototype = {
             return ((cv < v) ? -1 : 1);
         }
         return 0;
+    },
+
+    /*
+     * 
+     */
+    onDisplaySettingsUpdated: function() {
+        this.mitemSearch.reset();
+
+        this.mitemTrack.actor.visible        = this.displayTrackSwitch;
+        this.mitemSearch.actor.visible       = this.displaySearchBar;
+        this.mitemUI.actor.visible           = this.displayGPasteUI;
+        this.mitemSettings.actor.visible     = this.displayGPasteSettings;
+        this.mitemEmptyHistory.actor.visible = this.displayEmptyHistory;
     },
 
     /*
@@ -149,17 +182,22 @@ GPasteApplet.prototype = {
         this.menu.addMenuItem(this.mitemTrack);
         this.menu.addMenuItem(this.mitemSearch);
 
+        this.menu.addMenuItem(this.msepTop);
+
         for (let i = 0; i < this.history.length; ++i) {
             this.menu.addMenuItem(this.history[i]);
         }
-
         this.menu.addMenuItem(this.mitemHistoryIsEmpty);
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        if (this.compareVersion("3.16") != -1) { 
+
+        this.menu.addMenuItem(this.msepBottom);
+
+        if (this.compareVersion("3.16") != -1) {
             this.menu.addMenuItem(this.mitemUI);
         }
         this.menu.addMenuItem(this.mitemSettings);
         this.menu.addMenuItem(this.mitemEmptyHistory);
+
+        this.onDisplaySettingsUpdated();
     },
 
     /*
@@ -215,7 +253,7 @@ GPasteApplet.prototype = {
         try {
             GPaste.util_spawn('Ui');
         }
-        catch (e) {
+        catch (e) { // Native approach didn't work, try alternative
             Util.spawnCommandLine("gpaste ui");
         }
     },
@@ -227,7 +265,7 @@ GPasteApplet.prototype = {
         try {
             GPaste.util_spawn('Settings');
         }
-        catch (e) {
+        catch (e) { // Native approach didn't work, try alternative
             Util.spawnCommandLine("gpaste settings");
         }
     },
@@ -327,7 +365,7 @@ GPasteApplet.prototype = {
 /*
  * Entry point
  */
-function main(metadata, orientation) {  
-    let applet = new GPasteApplet(orientation);
+function main(metadata, orientation, panel_height, instance_id) {  
+    let applet = new GPasteApplet(orientation, panel_height, instance_id);
     return applet;      
 };

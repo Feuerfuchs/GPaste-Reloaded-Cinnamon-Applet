@@ -16,11 +16,5 @@ GPasteMenu.prototype = {
         
         Main.uiGroup.add_actor(this.actor);
         this.actor.hide();        
-    },
-
-    _onKeyPressEvent: function(actor, event) {
-        PopupMenu.PopupMenu.prototype._onKeyPressEvent.call(this, actor, event);
-
-        this.emit('key-press');
     }
 };
