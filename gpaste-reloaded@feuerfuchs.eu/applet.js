@@ -37,6 +37,15 @@ GPasteApplet.prototype = {
             this.set_applet_tooltip(_("GPaste clipboard"));
 
             //
+            // Applet menu
+
+            this.cmitemUI            = new PopupMenu.PopupMenuItem(_("GPaste User Interface"));
+            this.cmitemUI.connect('activate', Lang.bind(this, this.openUI));
+
+            this.cmitemSettings      = new PopupMenu.PopupMenuItem(_("GPaste Settings"));
+            this.cmitemSettings.connect('activate', Lang.bind(this, this.openSettings));
+
+            //
             // Prepare Menu
 
             this.menuManager         = new PopupMenu.PopupMenuManager(this);
@@ -103,13 +112,9 @@ GPasteApplet.prototype = {
 
                 let i = -1;
                 if (this.compareVersion("3.16") != -1) {
-                    this._applet_context_menu.addMenuItem(new Applet.MenuItem(_("GPaste User Interface"), null, Lang.bind(this, function(actor, event) {
-                        this.openUI();
-                    })), ++i);
+                    this._applet_context_menu.addMenuItem(this.cmitemUI, ++i);
                 }
-                this._applet_context_menu.addMenuItem(new Applet.MenuItem(_("GPaste Settings"), null, Lang.bind(this, function(actor, event) {
-                    this.openSettings();
-                })), ++i);
+                this._applet_context_menu.addMenuItem(this.cmitemSettings, ++i);
                 this._applet_context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), ++i);
             }));
 
