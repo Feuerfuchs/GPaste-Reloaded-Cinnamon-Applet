@@ -85,6 +85,7 @@ GPasteHistoryItem.prototype = {
      */
     activate: function(event) {
         this.client.select(this.index, null);
+        this.actor.hide();
     },
 
     //
