@@ -1,3 +1,6 @@
+// TODO:
+// support different history queues, for now just hardcode the default 'history'
+
 const uuid              = "gpaste-reloaded@feuerfuchs.eu";
 
 const Util              = imports.misc.util;
@@ -32,7 +35,7 @@ GPasteApplet.prototype = {
         try {
             //
             // Applet icon
-            
+
             this.set_applet_icon_symbolic_name("edit-paste");
             this.set_applet_tooltip(_("GPaste clipboard"));
 
@@ -42,17 +45,13 @@ GPasteApplet.prototype = {
             this.cmitemUI            = new PopupMenu.PopupMenuItem(_("GPaste User Interface"));
             this.cmitemUI.connect('activate', Lang.bind(this, this.openUI));
 
-            this.cmitemSettings      = new PopupMenu.PopupMenuItem(_("GPaste Settings"));
-            this.cmitemSettings.connect('activate', Lang.bind(this, this.openSettings));
-
             //
             // Prepare Menu
 
             this.menuManager         = new PopupMenu.PopupMenuManager(this);
             this.menu                = new GPasteMenu.GPasteMenu(this, orientation);
-            //this.menu                = new Applet.AppletPopupMenu(this, orientation);
             this.menuManager.addMenu(this.menu);
-            
+
             this.mitemTrack          = new PopupMenu.PopupSwitchMenuItem(_("Track clipboard changes"), true);
             this.mitemTrack.connect('toggled', Lang.bind(this, this.toggleDaemon));
 
@@ -69,11 +68,8 @@ GPasteApplet.prototype = {
             this.mitemUI             = new PopupMenu.PopupMenuItem(_("GPaste User Interface"));
             this.mitemUI.connect('activate', Lang.bind(this, this.openUI));
 
-            this.mitemSettings       = new PopupMenu.PopupMenuItem(_("GPaste Settings"));
-            this.mitemSettings.connect('activate', Lang.bind(this, this.openSettings));
-
             this.mitemEmptyHistory   = new PopupMenu.PopupMenuItem(_("Empty history"));
-            this.mitemEmptyHistory.connect('activate', Lang.bind(this, this.empty));
+            this.mitemEmptyHistory.connect('activate', Lang.bind(this, this.empty_history));
 
             //
             // Applet settings
@@ -83,7 +79,6 @@ GPasteApplet.prototype = {
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-track-switch",    "displayTrackSwitch",    this.onDisplaySettingsUpdated, null);
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-searchbar",       "displaySearchBar",      this.onDisplaySettingsUpdated, null);
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-ui",       "displayGPasteUI",       this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-settings", "displayGPasteSettings", this.onDisplaySettingsUpdated, null);
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-empty-history",   "displayEmptyHistory",   this.onDisplaySettingsUpdated, null);
 
             //
@@ -111,10 +106,9 @@ GPasteApplet.prototype = {
                 // Applet menu
 
                 let i = -1;
-                if (this.compareVersion("3.16") != -1) {
+                if (this.compareVersion("3.18") != -1) {
                     this._applet_context_menu.addMenuItem(this.cmitemUI, ++i);
                 }
-                this._applet_context_menu.addMenuItem(this.cmitemSettings, ++i);
                 this._applet_context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), ++i);
             }));
 
@@ -157,7 +151,7 @@ GPasteApplet.prototype = {
     },
 
     /*
-     * 
+     *
      */
     onDisplaySettingsUpdated: function() {
         this.mitemSearch.reset();
@@ -165,7 +159,6 @@ GPasteApplet.prototype = {
         this.mitemTrack.actor.visible        = this.displayTrackSwitch;
         this.mitemSearch.actor.visible       = this.displaySearchBar;
         this.mitemUI.actor.visible           = this.displayGPasteUI;
-        this.mitemSettings.actor.visible     = this.displayGPasteSettings;
         this.mitemEmptyHistory.actor.visible = this.displayEmptyHistory;
     },
 
@@ -210,10 +203,9 @@ GPasteApplet.prototype = {
 
         this.menu.addMenuItem(this.msepBottom);
 
-        if (this.compareVersion("3.16") != -1) {
+        if (this.compareVersion("3.18.2") != -1) {
             this.menu.addMenuItem(this.mitemUI);
         }
-        this.menu.addMenuItem(this.mitemSettings);
         this.menu.addMenuItem(this.mitemEmptyHistory);
 
         this.onDisplaySettingsUpdated();
@@ -226,7 +218,7 @@ GPasteApplet.prototype = {
         if (this.searchResults.length > 0) { // Search field isn't empty
             this.onSearch();
         } else {
-            this.client.get_history_size(Lang.bind(this, function(client, result) {
+            this.client.get_history_size('history', Lang.bind(this, function(client, result) {
                 let size    = client.get_history_size_finish(result);
                 let maxSize = this.history.length;
 
@@ -244,7 +236,7 @@ GPasteApplet.prototype = {
                 if (size == 0) { // There aren't any history items, display "(empty)"
                     this.mitemHistoryIsEmpty.actor.show();
                 }
-                else {    
+                else {
                     this.mitemHistoryIsEmpty.actor.hide();
                 }
             }));
@@ -261,8 +253,8 @@ GPasteApplet.prototype = {
     /*
      * Empty the history
      */
-    empty: function() {
-        this.client.empty(null);
+    empty_history: function() {
+        this.client.empty_history('history', null);
     },
 
     /*
@@ -273,19 +265,7 @@ GPasteApplet.prototype = {
             GPaste.util_spawn('Ui');
         }
         catch (e) { // Native approach didn't work, try alternative
-            Util.spawnCommandLine("gpaste ui");
-        }
-    },
-
-    /*
-     * Open GPaste's settings
-     */
-    openSettings: function() {
-        try {
-            GPaste.util_spawn('Settings');
-        }
-        catch (e) { // Native approach didn't work, try alternative
-            Util.spawnCommandLine("gpaste settings");
+            Util.spawnCommandLine("gpaste-client ui");
         }
     },
 
@@ -375,7 +355,7 @@ GPasteApplet.prototype = {
      * Display menu
      */
     on_applet_clicked: function(event) {
-        this.menu.toggle();       
+        this.menu.toggle();
     }
 };
 
@@ -384,7 +364,7 @@ GPasteApplet.prototype = {
 /*
  * Entry point
  */
-function main(metadata, orientation, panel_height, instance_id) {  
+function main(metadata, orientation, panel_height, instance_id) {
     let applet = new GPasteApplet(orientation, panel_height, instance_id);
-    return applet;      
+    return applet;
 };

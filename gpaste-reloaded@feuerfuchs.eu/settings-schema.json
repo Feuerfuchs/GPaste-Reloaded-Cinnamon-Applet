@@ -18,11 +18,6 @@
         "type":        "checkbox",
         "description": "Display 'GPaste User Interface'"
     },
-    "display-gpaste-settings": {
-        "default":     false,
-        "type":        "checkbox",
-        "description": "Display 'GPaste Settings'"
-    },
     "display-empty-history": {
         "default":     true,
         "type":        "checkbox",
@@ -31,6 +26,6 @@
     "gpaste-settings": {
         "type":        "button",
         "description": "GPaste Settings",
-        "callback":    "openSettings"
+        "callback":    "displayGPasteUI"
     }
 }
