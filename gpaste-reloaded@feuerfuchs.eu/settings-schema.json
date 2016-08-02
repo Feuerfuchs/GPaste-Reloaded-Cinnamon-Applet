@@ -26,6 +26,6 @@
     "gpaste-settings": {
         "type":        "button",
         "description": "GPaste Settings",
-        "callback":    "displayGPasteUI"
+        "callback":    "openUI"
     }
 }
