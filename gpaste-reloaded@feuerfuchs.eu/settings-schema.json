@@ -1,7 +1,7 @@
 {
     "general": {
         "type":        "header",
-        "description": "Show/hide entries"
+        "description": "Shown entries"
     },
     "display-track-switch": {
         "default":     true,
@@ -25,7 +25,7 @@
     },
     "gpaste-settings": {
         "type":        "button",
-        "description": "GPaste Settings",
+        "description": "GPaste Main Program",
         "callback":    "openUI"
     }
 }

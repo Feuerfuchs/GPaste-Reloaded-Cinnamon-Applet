@@ -7,19 +7,22 @@ const Util                  = imports.misc.util;
 const Lang                  = imports.lang;
 const St                    = imports.gi.St;
 const PopupMenu             = imports.ui.popupMenu;
+const GLib                  = imports.gi.GLib;
 const Gettext               = imports.gettext;
 const Applet                = imports.ui.applet;
 const Settings              = imports.ui.settings;
 
 const GPaste                = imports.gi.GPaste;
 
-const _                     = Gettext.domain('GPaste').gettext;
-
 const AppletDir             = imports.ui.appletManager.applets[uuid];
 const GPasteMenu            = AppletDir.GPasteMenu;
 const GPasteSearchItem      = AppletDir.GPasteSearchItem;
 const GPasteHistoryItem     = AppletDir.GPasteHistoryItem;
 const GPasteHistoryListItem = AppletDir.GPasteHistoryListItem;
+
+function _(str){
+    return Gettext.dgettext(uuid, str);
+}
 
 // ------------------------------------------------------------------------------------------------------
 
@@ -68,7 +71,7 @@ GPasteApplet.prototype = {
 
             this.msepBottom          = new PopupMenu.PopupSeparatorMenuItem();
 
-            this.mitemUI             = new PopupMenu.PopupMenuItem(_("GPaste User Interface"));
+            this.mitemUI             = new PopupMenu.PopupMenuItem(_("GPaste Main Program"));
             this.mitemUI.connect('activate', Lang.bind(this, this.openUI));
 
             this.mitemEmptyHistory   = new PopupMenu.PopupMenuItem(_("Empty history"));
@@ -79,10 +82,10 @@ GPasteApplet.prototype = {
 
             this.appletSettings = new Settings.AppletSettings(this, uuid, instance_id);
 
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-track-switch",    "displayTrackSwitch",    this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-searchbar",       "displaySearchBar",      this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-ui",       "displayGPasteUI",       this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-empty-history",   "displayEmptyHistory",   this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-track-switch",  "displayTrackSwitch",  this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-searchbar",     "displaySearchBar",    this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-ui",     "displayGPasteUI",     this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-empty-history", "displayEmptyHistory", this.onDisplaySettingsUpdated, null);
 
             //
             // Create GPaste Client
@@ -307,8 +310,6 @@ GPasteApplet.prototype = {
     onClientUpdate: function(client, action, target, position) {
         global.log("GPaste applet event: onClientUpdate");
 
-        global.log("GPaste applet event: onClientUpdate");
-
         switch (target) {
             case GPaste.UpdateTarget.ALL:
                 this.refresh(0);
@@ -451,6 +452,7 @@ GPasteApplet.prototype = {
  * Entry point
  */
 function main(metadata, orientation, panel_height, instance_id) {
-    let applet = new GPasteApplet(orientation, panel_height, instance_id);
-    return applet;
+    Gettext.bindtextdomain(uuid, metadata.path + "/locale");
+
+    return new GPasteApplet(orientation, panel_height, instance_id);
 };
