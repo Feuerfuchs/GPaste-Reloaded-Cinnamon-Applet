@@ -1,9 +1,8 @@
 const Lang      = imports.lang;
 const St        = imports.gi.St;
 const PopupMenu = imports.ui.popupMenu;
-const Gettext   = imports.gettext;
 
-const _         = Gettext.gettext;
+const _         = imports.applet._;
 
 // ------------------------------------------------------------------------------------------------------
 

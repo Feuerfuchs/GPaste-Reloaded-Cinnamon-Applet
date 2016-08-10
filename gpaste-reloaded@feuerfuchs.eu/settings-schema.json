@@ -16,7 +16,7 @@
     "display-gpaste-ui": {
         "default":     false,
         "type":        "checkbox",
-        "description": "Display 'GPaste User Interface'"
+        "description": "Display 'GPaste Main Program'"
     },
     "display-empty-history": {
         "default":     true,

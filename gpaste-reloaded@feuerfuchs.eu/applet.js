@@ -1,14 +1,12 @@
 // TODO:
 // Somehow detect if a new history has been added (there seems to be no suitable DBus signal)
 
-const uuid                  = "gpaste-reloaded@feuerfuchs.eu";
+const uuid                  = imports.applet.uuid;
 
 const Util                  = imports.misc.util;
 const Lang                  = imports.lang;
 const St                    = imports.gi.St;
 const PopupMenu             = imports.ui.popupMenu;
-const GLib                  = imports.gi.GLib;
-const Gettext               = imports.gettext;
 const Applet                = imports.ui.applet;
 const Settings              = imports.ui.settings;
 
@@ -20,9 +18,7 @@ const GPasteSearchItem      = AppletDir.GPasteSearchItem;
 const GPasteHistoryItem     = AppletDir.GPasteHistoryItem;
 const GPasteHistoryListItem = AppletDir.GPasteHistoryListItem;
 
-function _(str){
-    return Gettext.dgettext(uuid, str);
-}
+const _                     = imports.applet._;
 
 // ------------------------------------------------------------------------------------------------------
 
@@ -46,7 +42,7 @@ GPasteApplet.prototype = {
             //
             // Applet menu
 
-            this.cmitemUI            = new PopupMenu.PopupMenuItem(_("GPaste User Interface"));
+            this.cmitemUI            = new PopupMenu.PopupMenuItem(_("GPaste Main Program"));
             this.cmitemUI.connect('activate', Lang.bind(this, this.openUI));
 
             this.cmitemSelectHistory = new PopupMenu.PopupSubMenuMenuItem(_("Select History"));
@@ -452,7 +448,5 @@ GPasteApplet.prototype = {
  * Entry point
  */
 function main(metadata, orientation, panel_height, instance_id) {
-    Gettext.bindtextdomain(uuid, metadata.path + "/locale");
-
     return new GPasteApplet(orientation, panel_height, instance_id);
 };
