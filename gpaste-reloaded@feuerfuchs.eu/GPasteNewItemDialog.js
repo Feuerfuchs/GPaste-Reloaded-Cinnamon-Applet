@@ -28,7 +28,7 @@ GPasteNewItemDialog.prototype = {
         let contentBox = new St.BoxLayout({ vertical: true, style: 'spacing: 16px;' });
         this.contentLayout.add(contentBox);
 
-        contentBox.add(new St.Label({ text: _('Just enter whatever you want to add to the current history:') }));
+        contentBox.add(new St.Label({ text: _("Just enter whatever you want to add to the current history:") }));
         contentBox.add(this.entry);
 
         this.setButtons([
