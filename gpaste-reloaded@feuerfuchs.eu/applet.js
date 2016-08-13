@@ -135,6 +135,8 @@ GPasteApplet.prototype = {
                 }));
                 this.client.list_histories(Lang.bind(this, this.onClientHistoriesListed));
 
+                this.mitemTrack.setToggleState(this.client.is_active());
+
                 //
                 //
 
