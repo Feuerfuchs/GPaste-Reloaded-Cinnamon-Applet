@@ -281,7 +281,7 @@ GPasteApplet.prototype = {
      * Empty the history
      */
     emptyHistory: function() {
-        this.client.emptyHistory(this.historyName, null);
+        this.client.empty_history(this.historyName, null);
     },
 
     /*
