@@ -1,9 +1,4 @@
-const Lang      = imports.lang;
-const St        = imports.gi.St;
 const PopupMenu = imports.ui.popupMenu;
-const Pango     = imports.gi.Pango;
-
-const GPaste    = imports.gi.GPaste;
 
 // ------------------------------------------------------------------------------------------------------
 

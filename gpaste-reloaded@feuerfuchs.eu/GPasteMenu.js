@@ -1,5 +1,4 @@
 const Main      = imports.ui.main;
-const Clutter   = imports.gi.Clutter;
 const PopupMenu = imports.ui.popupMenu;
 
 // ------------------------------------------------------------------------------------------------------

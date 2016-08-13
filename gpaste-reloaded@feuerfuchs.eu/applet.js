@@ -17,6 +17,7 @@ const GPasteMenu            = AppletDir.GPasteMenu;
 const GPasteSearchItem      = AppletDir.GPasteSearchItem;
 const GPasteHistoryItem     = AppletDir.GPasteHistoryItem;
 const GPasteHistoryListItem = AppletDir.GPasteHistoryListItem;
+const GPasteNewItemDialog   = AppletDir.GPasteNewItemDialog;
 
 const _                     = imports.applet._;
 
@@ -57,6 +58,9 @@ GPasteApplet.prototype = {
             this.mitemTrack          = new PopupMenu.PopupSwitchMenuItem(_("Track clipboard changes"), true);
             this.mitemTrack.connect('toggled', Lang.bind(this, this.toggleDaemon));
 
+            this.mitemNewItem        = new PopupMenu.PopupMenuItem(_("New item"));
+            this.mitemNewItem.connect('activate', Lang.bind(this, this.showNewItemDialog));
+
             this.mitemSearch         = new GPasteSearchItem.GPasteSearchItem();
             this.mitemSearch.connect('text-changed', Lang.bind(this, this.onSearch));
 
@@ -74,11 +78,21 @@ GPasteApplet.prototype = {
             this.mitemEmptyHistory.connect('activate', Lang.bind(this, this.emptyHistory));
 
             //
+            // Dialogs
+
+            this.dNewItem            = new GPasteNewItemDialog.GPasteNewItemDialog(Lang.bind(this, function(text) {
+                this.client.add(text, Lang.bind(this, function(client, result) {
+                    this.client.add_finish(result);
+                }));
+            }));
+
+            //
             // Applet settings
 
             this.appletSettings = new Settings.AppletSettings(this, uuid, instance_id);
 
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-track-switch",  "displayTrackSwitch",  this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-new-item",      "displayNewItem",      this.onDisplaySettingsUpdated, null);
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-searchbar",     "displaySearchBar",    this.onDisplaySettingsUpdated, null);
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-ui",     "displayGPasteUI",     this.onDisplaySettingsUpdated, null);
             this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-empty-history", "displayEmptyHistory", this.onDisplaySettingsUpdated, null);
@@ -122,7 +136,7 @@ GPasteApplet.prototype = {
                 this.client.list_histories(Lang.bind(this, this.onClientHistoriesListed));
 
                 //
-                // 
+                //
 
                 this.createHistoryItems();
                 this.populateMenu();
@@ -166,15 +180,14 @@ GPasteApplet.prototype = {
         return 0;
     },
 
-    /*this.client.get_history_name(Lang.bind(this, function(client, result) {
-                    this.historyName = this.client.get_history_name_finish(result);
-                }));
-     *
+    /*
+     * Applet settings were changed
      */
     onDisplaySettingsUpdated: function() {
         this.mitemSearch.reset();
 
         this.mitemTrack.actor.visible        = this.displayTrackSwitch;
+        this.mitemNewItem.actor.visible      = this.displayNewItem;
         this.mitemSearch.actor.visible       = this.displaySearchBar;
         this.mitemUI.actor.visible           = this.displayGPasteUI;
         this.mitemEmptyHistory.actor.visible = this.displayEmptyHistory;
@@ -210,6 +223,7 @@ GPasteApplet.prototype = {
      */
     populateMenu: function() {
         this.menu.addMenuItem(this.mitemTrack);
+        this.menu.addMenuItem(this.mitemNewItem);
         this.menu.addMenuItem(this.mitemSearch);
 
         this.menu.addMenuItem(this.msepTop);
@@ -296,6 +310,13 @@ GPasteApplet.prototype = {
         }
     },
 
+    /*
+     *
+     */
+    showNewItemDialog: function() {
+        this.dNewItem.open(global.get_current_time());
+    },
+
     //
     // Events
     // ---------------------------------------------------------------------------------
@@ -342,7 +363,7 @@ GPasteApplet.prototype = {
             if (name == "") continue;
 
             let item = new GPasteHistoryListItem.GPasteHistoryListItem(this, name);
-            
+
             if (name == this.historyName) {
                 item.setShowDot(true);
             }
