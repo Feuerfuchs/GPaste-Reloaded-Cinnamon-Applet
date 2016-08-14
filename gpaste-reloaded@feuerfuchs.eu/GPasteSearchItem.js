@@ -35,7 +35,7 @@ GPasteSearchItem.prototype = {
         });
 
         //
-        // Search icon (left)
+        // Search icon
 
         this.iconSearch = new St.Icon({
             icon_name: 'edit-find-symbolic'
@@ -43,7 +43,7 @@ GPasteSearchItem.prototype = {
         this.entry.set_secondary_icon(this.iconSearch);
 
         //
-        // Clear icon (right)
+        // Clear icon
 
         this.iconClear = new St.Icon({
             style_class: 'menu-search-entry-icon',
@@ -51,10 +51,10 @@ GPasteSearchItem.prototype = {
         });
 
         //
-        // 
+        //
 
         this.entry.clutter_text.connect('text-changed', Lang.bind(this, this.onTextChanged));
-        
+
         //
         // Binding ID of the remove icon
 
@@ -108,7 +108,7 @@ GPasteSearchItem.prototype = {
     },
 
     /*
-     * The search  field was selected via mouse hover
+     * The search field was selected via mouse hover
      */
     _onHoverChanged: function (actor) {
         global.stage.set_key_focus(this.entry);

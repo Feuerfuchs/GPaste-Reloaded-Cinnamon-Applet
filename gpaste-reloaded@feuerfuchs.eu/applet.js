@@ -58,9 +58,6 @@ GPasteApplet.prototype = {
             this.mitemTrack          = new PopupMenu.PopupSwitchMenuItem(_("Track clipboard changes"), true);
             this.mitemTrack.connect('toggled', Lang.bind(this, this.toggleDaemon));
 
-            this.mitemNewItem        = new PopupMenu.PopupMenuItem(_("New item"));
-            this.mitemNewItem.connect('activate', Lang.bind(this, this.showNewItemDialog));
-
             this.mitemSearch         = new GPasteSearchItem.GPasteSearchItem();
             this.mitemSearch.connect('text-changed', Lang.bind(this, this.onSearch));
 
@@ -71,11 +68,16 @@ GPasteApplet.prototype = {
 
             this.msepBottom          = new PopupMenu.PopupSeparatorMenuItem();
 
-            this.mitemUI             = new PopupMenu.PopupMenuItem(_("GPaste Main Program"));
-            this.mitemUI.connect('activate', Lang.bind(this, this.openUI));
+            this.mitemNewItem        = new PopupMenu.PopupIconMenuItem(_("New item"), "list-add", St.IconType.SYMBOLIC);
+            this.mitemNewItem.connect('activate', Lang.bind(this, this.showNewItemDialog));
 
-            this.mitemEmptyHistory   = new PopupMenu.PopupMenuItem(_("Empty history"));
+            this.mitemEmptyHistory   = new PopupMenu.PopupIconMenuItem(_("Empty history"), "edit-clear-all", St.IconType.SYMBOLIC);
             this.mitemEmptyHistory.connect('activate', Lang.bind(this, this.emptyHistory));
+
+            this.msepBottom2         = new PopupMenu.PopupSeparatorMenuItem();
+
+            this.mitemUI             = new PopupMenu.PopupIconMenuItem(_("GPaste Main Program"), "edit-paste", St.IconType.SYMBOLIC);
+            this.mitemUI.connect('activate', Lang.bind(this, this.openUI));
 
             //
             // Dialogs
@@ -189,10 +191,15 @@ GPasteApplet.prototype = {
         this.mitemSearch.reset();
 
         this.mitemTrack.actor.visible        = this.displayTrackSwitch;
-        this.mitemNewItem.actor.visible      = this.displayNewItem;
+        this.msepTop.actor.visible           = this.displayTrackSwitch;
         this.mitemSearch.actor.visible       = this.displaySearchBar;
-        this.mitemUI.actor.visible           = this.displayGPasteUI;
+
+        this.msepBottom.actor.visible        = this.displayNewItem || this.displayGPasteUI || this.displayEmptyHistory;
+        this.mitemNewItem.actor.visible      = this.displayNewItem;
         this.mitemEmptyHistory.actor.visible = this.displayEmptyHistory;
+
+        this.msepBottom2.actor.visible       = this.displayGPasteUI;
+        this.mitemUI.actor.visible           = this.displayGPasteUI;
     },
 
     /*
@@ -204,7 +211,7 @@ GPasteApplet.prototype = {
 
         if (newSize > oldSize) {
             for (let index = oldSize; index < newSize; ++index) {
-                this.historyItems[index] = new GPasteHistoryItem.GPasteHistoryItem(this.client, this.settings);
+                this.historyItems[index] = new GPasteHistoryItem.GPasteHistoryItem(this);
             }
         }
         else {
@@ -225,7 +232,6 @@ GPasteApplet.prototype = {
      */
     populateMenu: function() {
         this.menu.addMenuItem(this.mitemTrack);
-        this.menu.addMenuItem(this.mitemNewItem);
         this.menu.addMenuItem(this.mitemSearch);
 
         this.menu.addMenuItem(this.msepTop);
@@ -237,10 +243,13 @@ GPasteApplet.prototype = {
 
         this.menu.addMenuItem(this.msepBottom);
 
+        this.menu.addMenuItem(this.mitemNewItem);
+        this.menu.addMenuItem(this.mitemEmptyHistory);
+
         if (this.compareVersion("3.18.2") != -1) {
+            this.menu.addMenuItem(this.msepBottom2);
             this.menu.addMenuItem(this.mitemUI);
         }
-        this.menu.addMenuItem(this.mitemEmptyHistory);
 
         this.onDisplaySettingsUpdated();
     },

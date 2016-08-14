@@ -14,11 +14,10 @@ function GPasteHistoryItem(text, index) {
 GPasteHistoryItem.prototype = {
     __proto__: PopupMenu.PopupBaseMenuItem.prototype,
 
-    _init: function(client, settings) {
+    _init: function(applet) {
         PopupMenu.PopupBaseMenuItem.prototype._init.call(this);
 
-        this.client   = client;
-        this.settings = settings;
+        this.applet = applet;
 
         //
         // Label
@@ -28,7 +27,7 @@ GPasteHistoryItem.prototype = {
         this.addActor(this.label);
 
         this.setTextLength();
-        this.settingsChangedID = settings.connect('changed::element-size', Lang.bind(this, this.setTextLength));
+        this.settingsChangedID = this.applet.settings.connect('changed::element-size', Lang.bind(this, this.setTextLength));
 
         //
         // Delete button
@@ -52,7 +51,7 @@ GPasteHistoryItem.prototype = {
      * Set max text length using GPaste's setting
      */
     setTextLength: function() {
-        this.label.clutter_text.max_length = this.settings.get_element_size();
+        this.label.clutter_text.max_length = this.applet.settings.get_element_size();
     },
 
     /*
@@ -62,7 +61,7 @@ GPasteHistoryItem.prototype = {
         this.index = index;
 
         if (index != -1) {
-            this.client.get_element(index, Lang.bind(this, function(client, result) {
+            this.applet.client.get_element(index, Lang.bind(this, function(client, result) {
                 this.label.set_text(client.get_element_finish(result).replace(/[\t\n\r]/g, ''));
             }));
 
@@ -77,15 +76,15 @@ GPasteHistoryItem.prototype = {
      * Remove history item
      */
     remove: function() {
-        this.client.delete(this.index, null);
+        this.applet.client.delete(this.index, null);
     },
 
     /*
      * Select history item
      */
     activate: function(event) {
-        this.client.select(this.index, null);
-        this.actor.hide();
+        this.applet.client.select(this.index, null);
+        this.applet.menu.toggle();
     },
 
     //
@@ -96,6 +95,6 @@ GPasteHistoryItem.prototype = {
      * History item has been removed, disconnect bindings
      */
     onDestroy: function() {
-        this.settings.disconnect(this.settingsChangedID);
+        this.applet.settings.disconnect(this.settingsChangedID);
     }
 };
