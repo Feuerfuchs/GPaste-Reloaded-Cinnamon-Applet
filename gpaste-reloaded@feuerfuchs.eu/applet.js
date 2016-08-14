@@ -9,6 +9,7 @@ const St                    = imports.gi.St;
 const PopupMenu             = imports.ui.popupMenu;
 const Applet                = imports.ui.applet;
 const Settings              = imports.ui.settings;
+const ModalDialog           = imports.ui.modalDialog;
 
 const GPaste                = imports.gi.GPaste;
 
@@ -306,7 +307,9 @@ GPasteApplet.prototype = {
      * Empty the history
      */
     emptyHistory: function() {
-        this.client.empty_history(this.historyName, null);
+        new ModalDialog.ConfirmDialog(_("Do you really want to empty the current history?"), Lang.bind(this, function() {
+            this.client.empty_history(this.historyName, null);
+        })).open(global.get_current_time());
     },
 
     /*

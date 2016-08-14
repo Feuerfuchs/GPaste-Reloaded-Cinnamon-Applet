@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-14 17:22+0200\n"
-"PO-Revision-Date: 2016-08-14 17:22+0200\n"
+"POT-Creation-Date: 2016-08-14 18:22+0200\n"
+"PO-Revision-Date: 2016-08-14 18:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de\n"
@@ -17,35 +17,39 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.8\n"
 
-#: applet.js:41
+#: applet.js:42
 msgid "GPaste clipboard"
 msgstr "GPaste Clipboard"
 
 #. gpaste-reloaded@feuerfuchs.eu->settings-schema.json->gpaste-
 #. settings->description
-#: applet.js:46 applet.js:77
+#: applet.js:47 applet.js:80
 msgid "GPaste Main Program"
 msgstr "GPaste Hauptprogramm"
 
-#: applet.js:49
+#: applet.js:50
 msgid "Select History"
 msgstr "History auswählen"
 
-#: applet.js:58
+#: applet.js:59
 msgid "Track clipboard changes"
 msgstr "Änderungen verfolgen"
 
-#: applet.js:66
+#: applet.js:67
 msgid "(Empty)"
 msgstr "(Leer)"
 
-#: applet.js:71
+#: applet.js:72
 msgid "New item"
 msgstr "Neuer Eintrag"
 
-#: applet.js:74
+#: applet.js:75
 msgid "Empty history"
 msgstr "History leeren"
+
+#: applet.js:310
+msgid "Do you really want to empty the current history?"
+msgstr "Möchtest du wirklich die aktuelle History leeren?"
 
 #: GPasteNewItemDialog.js:47
 msgid "Please enter the text you want to add to the current history:"
