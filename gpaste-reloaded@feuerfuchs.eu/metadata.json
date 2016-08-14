@@ -4,8 +4,8 @@
     "max-instances": -1,
     "dangerous":     false,
     "uuid":          "gpaste-reloaded@feuerfuchs.eu",
-    "version":       "1.6.1",
-    "last-edited":   "1471102240",
+    "version":       "1.7",
+    "last-edited":   "1471190622",
     "icon":          "edit-paste",
     "name":          "GPaste Reloaded"
 }
