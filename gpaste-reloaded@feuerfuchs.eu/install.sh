@@ -37,7 +37,7 @@ while getopts "rh" OPTION; do
             echo ""
             echo "      install.sh [-r | -h]"
             echo ""
-            echo "      If no arguments are supplied, the applied gets installed."
+            echo "      If no arguments are supplied, the applet gets installed."
             echo "      If -r is supplied, the applet gets removed instead."
             echo "      If -h is supplied, this help message is displayed."
             echo ""
