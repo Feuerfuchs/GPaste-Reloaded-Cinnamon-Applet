@@ -113,11 +113,9 @@ GPasteApplet.prototype = {
                 this.clientShowID             = this.client.connect('show-history',   Lang.bind(this, this.onClientShowHistory));
                 this.clientSwitchHistoryID    = this.client.connect('switch-history', Lang.bind(this, this.onClientSwitchHistory));
                 this.clientTrackingID         = this.client.connect('tracking',       Lang.bind(this, this.onClientTracking));
-                this.clientDeleteHistoryID    = this.client.connect('delete-history', Lang.bind(this, function() { this.client.list_histories(Lang.bind(this, this.onClientHistoriesListed)); }));
+                this.clientDeleteHistoryID    = this.client.connect('delete-history', Lang.bind(this, this.onClientDeleteHistory));
 
                 this.settingsMaxSizeChangedID = this.settings.connect('changed::max-displayed-history-size', Lang.bind(this, this.createHistoryItems));
-
-                this.actor.connect('destroy', Lang.bind(this, this.onDestroy));
 
                 //
                 // Applet menu
@@ -364,8 +362,9 @@ GPasteApplet.prototype = {
 
         let histories = this.client.list_histories_finish(result);
 
-        while (this.historyListItems.length > 0) {
-            this.historyListItems.pop().destroy();
+        for (let n in this.historyListItems) {
+            this.historyListItems[n].destroy();
+            delete this.historyListItems[n];
         }
 
         for (let i = 0; i < histories.length; ++i) {
@@ -380,7 +379,21 @@ GPasteApplet.prototype = {
             }
 
             this.cmitemSelectHistory.menu.addMenuItem(item);
-            this.historyListItems.push(item);
+            this.historyListItems[name] = item;
+        }
+    },
+
+    /*
+     * A history was deleted
+     */
+    onClientDeleteHistory: function(client, name) {
+        global.log("GPaste applet event: onClientDeleteHistory");
+
+        for (let n in this.historyListItems) {
+            if (n == name) {
+                this.historyListItems[n].destroy();
+                delete this.historyListItems[n];
+            }
         }
     },
 
@@ -459,7 +472,9 @@ GPasteApplet.prototype = {
     /*
      * Applet has been removed, disconnect bindings
      */
-    onDestroy: function() {
+    on_applet_removed_from_panel: function() {
+        global.log("GPaste applet was removed from panel");
+
         this.client.disconnect(this.clientUpdateID);
         this.client.disconnect(this.clientShowID);
         this.client.disconnect(this.clientTrackingID);
