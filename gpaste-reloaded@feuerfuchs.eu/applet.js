@@ -1,6 +1,3 @@
-// TODO:
-// Somehow detect if a new history has been added (there seems to be no suitable DBus signal)
-
 const uuid                  = imports.applet.uuid;
 
 const Util                  = imports.misc.util;
@@ -401,6 +398,8 @@ GPasteApplet.prototype = {
      */
     onClientSwitchHistory: function() {
         global.log("GPaste applet event: onClientSwitchHistory");
+
+        this.client.list_histories(Lang.bind(this, this.onClientHistoriesListed));
 
         this.client.get_history_name(Lang.bind(this, function(client, result) {
             this.historyName = this.client.get_history_name_finish(result);
