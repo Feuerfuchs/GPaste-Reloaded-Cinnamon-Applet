@@ -1,0 +1,5 @@
+icon.svg
+*.zip
+*.png
+*.xcf
+!preview.png
