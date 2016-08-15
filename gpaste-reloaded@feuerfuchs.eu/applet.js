@@ -53,34 +53,37 @@ GPasteApplet.prototype = {
             this.menu                = new GPasteMenu.GPasteMenu(this, orientation);
             this.menuManager.addMenu(this.menu);
 
-            this.mitemTrack          = new PopupMenu.PopupSwitchMenuItem(_("Track clipboard changes"), true);
+            this.mitemTrack           = new PopupMenu.PopupSwitchMenuItem(_("Track clipboard changes"), true);
             this.mitemTrack.connect('toggled', Lang.bind(this, this.toggleDaemon));
 
-            this.mitemSearch         = new GPasteSearchItem.GPasteSearchItem();
+            this.mitemSearch          = new GPasteSearchItem.GPasteSearchItem();
             this.mitemSearch.connect('text-changed', Lang.bind(this, function(a, text) { this.search(text); }));
 
-            this.msepTop             = new PopupMenu.PopupSeparatorMenuItem();
+            this.msepTop              = new PopupMenu.PopupSeparatorMenuItem();
 
-            this.mitemHistoryIsEmpty = new PopupMenu.PopupMenuItem(_("(Empty)"));
+            this.mitemHistoryIsEmpty  = new PopupMenu.PopupMenuItem(_("(Empty)"));
             this.mitemHistoryIsEmpty.setSensitive(false);
 
-            this.msepBottom          = new PopupMenu.PopupSeparatorMenuItem();
+            this.mitemNoSearchResults = new PopupMenu.PopupMenuItem(_("(No results)"));
+            this.mitemNoSearchResults.setSensitive(false);
 
-            this.mitemNewItem        = new PopupMenu.PopupIconMenuItem(_("New item"), "list-add", St.IconType.SYMBOLIC);
+            this.msepBottom           = new PopupMenu.PopupSeparatorMenuItem();
+
+            this.mitemNewItem         = new PopupMenu.PopupIconMenuItem(_("New item"), "list-add", St.IconType.SYMBOLIC);
             this.mitemNewItem.connect('activate', Lang.bind(this, this.showNewItemDialog));
 
-            this.mitemEmptyHistory   = new PopupMenu.PopupIconMenuItem(_("Empty history"), "edit-clear-all", St.IconType.SYMBOLIC);
+            this.mitemEmptyHistory    = new PopupMenu.PopupIconMenuItem(_("Empty history"), "edit-clear-all", St.IconType.SYMBOLIC);
             this.mitemEmptyHistory.connect('activate', Lang.bind(this, this.emptyHistory));
 
-            this.msepBottom2         = new PopupMenu.PopupSeparatorMenuItem();
+            this.msepBottom2          = new PopupMenu.PopupSeparatorMenuItem();
 
-            this.mitemUI             = new PopupMenu.PopupIconMenuItem(_("GPaste Main Program"), "edit-paste", St.IconType.SYMBOLIC);
+            this.mitemUI              = new PopupMenu.PopupIconMenuItem(_("GPaste Main Program"), "edit-paste", St.IconType.SYMBOLIC);
             this.mitemUI.connect('activate', Lang.bind(this, this.openUI));
 
             //
             // Dialogs
 
-            this.dNewItem            = new GPasteNewItemDialog.GPasteNewItemDialog(Lang.bind(this, function(text) {
+            this.dNewItem             = new GPasteNewItemDialog.GPasteNewItemDialog(Lang.bind(this, function(text) {
                 this.client.add(text, Lang.bind(this, function(client, result) {
                     this.client.add_finish(result);
                 }));
@@ -249,6 +252,7 @@ GPasteApplet.prototype = {
             this.menu.addMenuItem(this.historyItems[i]);
         }
         this.menu.addMenuItem(this.mitemHistoryIsEmpty);
+        this.menu.addMenuItem(this.mitemNoSearchResults);
 
         this.menu.addMenuItem(this.msepBottom);
 
@@ -262,7 +266,7 @@ GPasteApplet.prototype = {
 
         //
         // Hide disabled menu items
-        
+
         this._onDisplaySettingsUpdated();
     },
 
@@ -288,7 +292,7 @@ GPasteApplet.prototype = {
                     this.historyItems[i].setIndex(-1);
                 }
 
-                if (size == 0) { // There aren't any history items, display "(empty)"
+                if (size == 0) { // There aren't any history items, display "(Empty)"
                     this.mitemHistoryIsEmpty.actor.show();
                 } else {
                     this.mitemHistoryIsEmpty.actor.hide();
@@ -304,6 +308,8 @@ GPasteApplet.prototype = {
         searchStr = searchStr.toLowerCase();
 
         if (searchStr.length > 0) {
+            this.mitemHistoryIsEmpty.actor.hide();
+
             this.client.search(searchStr, Lang.bind(this, function(client, result) {
                 this.searchResults = client.search_finish(result);
                 let results = this.searchResults.length;
@@ -321,8 +327,16 @@ GPasteApplet.prototype = {
                 }
 
                 this.historyItems[0].actor.set_style(null);
+
+                if (results == 0) { // There aren't any results, display "(No results)"
+                    this.mitemNoSearchResults.actor.show();
+                } else {
+                    this.mitemNoSearchResults.actor.hide();
+                }
             }));
         } else {
+            this.mitemNoSearchResults.actor.hide();
+
             this.searchResults = [];
             this.refresh(0);
             this.historyItems[0].actor.set_style("font-weight: bold;");
