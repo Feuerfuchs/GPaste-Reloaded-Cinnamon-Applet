@@ -131,15 +131,15 @@ GPasteApplet.prototype = {
                 //
                 // Init
 
-                // Get history list
-                this.client.list_histories(Lang.bind(this, this._onClientHistoriesListed));
-
                 // Get tracking status
                 this.mitemTrack.setToggleState(this.client.is_active());
 
                 // Get current history name
                 this.client.get_history_name(Lang.bind(this, function(client, result) {
                     this.historyName = this.client.get_history_name_finish(result);
+
+                    // Get history list
+                    this.client.list_histories(Lang.bind(this, this._onClientHistoriesListed));
 
                     // Load history and populate applet
                     this._createHistoryItems();
