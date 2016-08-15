@@ -41,8 +41,10 @@ GPasteApplet.prototype = {
             //
             // Context menu items
 
-            this.cmitemUI            = new PopupMenu.PopupMenuItem(_("GPaste Main Program"));
+            this.cmitemUI            = new PopupMenu.PopupIconMenuItem(_("GPaste Main Program"), "edit-paste", St.IconType.SYMBOLIC);
             this.cmitemUI.connect('activate', Lang.bind(this, this.openUI));
+
+            this.cmsep               = new PopupMenu.PopupSeparatorMenuItem();
 
             this.cmitemSelectHistory = new PopupMenu.PopupSubMenuMenuItem(_("Select History"));
 
@@ -236,6 +238,7 @@ GPasteApplet.prototype = {
         let i = -1;
         if (this._compareVersion("3.18") != -1) {
             this._applet_context_menu.addMenuItem(this.cmitemUI, ++i);
+            this._applet_context_menu.addMenuItem(this.cmsep, ++i);
         }
         this._applet_context_menu.addMenuItem(this.cmitemSelectHistory, ++i);
         this._applet_context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), ++i);
