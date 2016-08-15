@@ -118,7 +118,7 @@ GPasteNewItemDialog.prototype = {
     // ---------------------------------------------------------------------------------
 
     /*
-     * Overridden so the text fields padding will be calculated as soon as
+     * Overridden so the text field's padding will be calculated as soon as
      * the dialog is displayed (it doesn't work correctly if it is hidden)
      */
     open: function(timestamp) {

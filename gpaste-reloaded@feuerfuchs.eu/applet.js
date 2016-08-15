@@ -7,6 +7,7 @@ const PopupMenu             = imports.ui.popupMenu;
 const Applet                = imports.ui.applet;
 const Settings              = imports.ui.settings;
 const ModalDialog           = imports.ui.modalDialog;
+const SignalManager         = imports.misc.signalManager;
 
 const GPaste                = imports.gi.GPaste;
 
@@ -110,7 +111,7 @@ GPasteApplet.prototype = {
             this.historyName      = "";
             this.historyItems     = [];
             this.historyListItems = [];
-            this.signalHandlers   = { client: [], clientSettings: [] };
+            this.signalManager    = new SignalManager.SignalManager(this);
 
             GPaste.Client.new(Lang.bind(this, function (obj, result) {
                 this.client = GPaste.Client.new_finish(result);
@@ -119,14 +120,14 @@ GPasteApplet.prototype = {
                 // Watch client signals
 
                 // Client
-                this.signalHandlers.client.push(this.client.connect('update',         Lang.bind(this, this._onClientUpdate)));
-                this.signalHandlers.client.push(this.client.connect('show-history',   Lang.bind(this, this._onClientShowHistory)));
-                this.signalHandlers.client.push(this.client.connect('switch-history', Lang.bind(this, this._onClientSwitchHistory)));
-                this.signalHandlers.client.push(this.client.connect('tracking',       Lang.bind(this, this._onClientTracking)));
-                this.signalHandlers.client.push(this.client.connect('delete-history', Lang.bind(this, this._onClientDeleteHistory)));
+                this.signalManager.connect(this.client, 'update',         this._onClientUpdate);
+                this.signalManager.connect(this.client, 'show-history',   this._onClientShowHistory);
+                this.signalManager.connect(this.client, 'switch-history', this._onClientSwitchHistory);
+                this.signalManager.connect(this.client, 'tracking',       this._onClientTracking);
+                this.signalManager.connect(this.client, 'delete-history', this._onClientDeleteHistory);
 
                 // Client settings
-                this.signalHandlers.clientSettings.push(this.clientSettings.connect('changed::max-displayed-history-size', Lang.bind(this, this._createHistoryItems)));
+                this.signalManager.connect(this.clientSettings, 'changed::max-displayed-history-size', this._createHistoryItems);
 
                 //
                 // Init
@@ -509,13 +510,7 @@ GPasteApplet.prototype = {
     on_applet_removed_from_panel: function() {
         global.log("GPaste applet was removed from panel");
 
-        for (let i = 0; i < this.signalHandlers.client.length; ++i) {
-            this.client.disconnect(this.signalHandlers.client[i]);
-        }
-
-        for (let i = 0; i < this.signalHandlers.clientSettings.length; ++i) {
-            this.clientSettings.disconnect(this.signalHandlers.clientSettings[i]);
-        }
+        this.signalManager.disconnectAllSignals();
     },
 
     /*
