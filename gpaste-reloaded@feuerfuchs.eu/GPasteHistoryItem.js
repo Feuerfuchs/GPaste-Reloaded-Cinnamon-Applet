@@ -22,12 +22,12 @@ GPasteHistoryItem.prototype = {
         //
         // Label
 
-        this.label                        = new St.Label({ text: '' });
-        this.label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+        this.label = new St.Label({ text: '' });
+        this.label.clutter_text.set_ellipsize(Pango.EllipsizeMode.END);
         this.addActor(this.label);
 
         this.setTextLength();
-        this.settingsChangedID = this.applet.settings.connect('changed::element-size', Lang.bind(this, this.setTextLength));
+        this.settingsChangedID = this.applet.clientSettings.connect('changed::element-size', Lang.bind(this, this.setTextLength));
 
         //
         // Delete button
@@ -44,14 +44,14 @@ GPasteHistoryItem.prototype = {
         //
         //
 
-        this.actor.connect('destroy', Lang.bind(this, this.onDestroy));
+        this.actor.connect('destroy', Lang.bind(this, this._onDestroy));
     },
 
     /*
      * Set max text length using GPaste's setting
      */
     setTextLength: function() {
-        this.label.clutter_text.max_length = this.applet.settings.get_element_size();
+        this.label.clutter_text.set_max_length(this.applet.clientSettings.get_element_size());
     },
 
     /*
@@ -79,14 +79,6 @@ GPasteHistoryItem.prototype = {
         this.applet.client.delete(this.index, null);
     },
 
-    /*
-     * Select history item
-     */
-    activate: function(event) {
-        this.applet.client.select(this.index, null);
-        this.applet.menu.toggle();
-    },
-
     //
     // Events
     // ---------------------------------------------------------------------------------
@@ -94,7 +86,19 @@ GPasteHistoryItem.prototype = {
     /*
      * History item has been removed, disconnect bindings
      */
-    onDestroy: function() {
-        this.applet.settings.disconnect(this.settingsChangedID);
+    _onDestroy: function() {
+        this.applet.clientSettings.disconnect(this.settingsChangedID);
+    },
+
+    //
+    // Overrides
+    // ---------------------------------------------------------------------------------
+
+    /*
+     * Select history item
+     */
+    activate: function(event) {
+        this.applet.client.select(this.index, null);
+        this.applet.menu.toggle();
     }
 };

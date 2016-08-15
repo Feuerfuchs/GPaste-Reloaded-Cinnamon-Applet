@@ -39,7 +39,7 @@ GPasteApplet.prototype = {
             this.set_applet_tooltip(_("GPaste clipboard"));
 
             //
-            // Applet menu
+            // Context menu items
 
             this.cmitemUI            = new PopupMenu.PopupMenuItem(_("GPaste Main Program"));
             this.cmitemUI.connect('activate', Lang.bind(this, this.openUI));
@@ -47,7 +47,7 @@ GPasteApplet.prototype = {
             this.cmitemSelectHistory = new PopupMenu.PopupSubMenuMenuItem(_("Select History"));
 
             //
-            // Prepare Menu
+            // Primary menu
 
             this.menuManager         = new PopupMenu.PopupMenuManager(this);
             this.menu                = new GPasteMenu.GPasteMenu(this, orientation);
@@ -57,7 +57,7 @@ GPasteApplet.prototype = {
             this.mitemTrack.connect('toggled', Lang.bind(this, this.toggleDaemon));
 
             this.mitemSearch         = new GPasteSearchItem.GPasteSearchItem();
-            this.mitemSearch.connect('text-changed', Lang.bind(this, this.onSearch));
+            this.mitemSearch.connect('text-changed', Lang.bind(this, function(a, text) { this.search(text); }));
 
             this.msepTop             = new PopupMenu.PopupSeparatorMenuItem();
 
@@ -91,55 +91,55 @@ GPasteApplet.prototype = {
 
             this.appletSettings = new Settings.AppletSettings(this, uuid, instance_id);
 
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-track-switch",  "displayTrackSwitch",  this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-new-item",      "displayNewItem",      this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-searchbar",     "displaySearchBar",    this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-ui",     "displayGPasteUI",     this.onDisplaySettingsUpdated, null);
-            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-empty-history", "displayEmptyHistory", this.onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-track-switch",  "displayTrackSwitch",  this._onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-new-item",      "displayNewItem",      this._onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-searchbar",     "displaySearchBar",    this._onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-gpaste-ui",     "displayGPasteUI",     this._onDisplaySettingsUpdated, null);
+            this.appletSettings.bindProperty(Settings.BindingDirection.IN, "display-empty-history", "displayEmptyHistory", this._onDisplaySettingsUpdated, null);
 
             //
             // Create GPaste Client
 
-            this.settings         = new GPaste.Settings();
+            this.clientSettings   = new GPaste.Settings();
             this.searchResults    = [];
             this.historyName      = "";
             this.historyItems     = [];
             this.historyListItems = [];
+            this.signalHandlers   = { client: [], clientSettings: [] };
 
             GPaste.Client.new(Lang.bind(this, function (obj, result) {
-                this.client                   = GPaste.Client.new_finish(result);
-
-                this.clientUpdateID           = this.client.connect('update',         Lang.bind(this, this.onClientUpdate));
-                this.clientShowID             = this.client.connect('show-history',   Lang.bind(this, this.onClientShowHistory));
-                this.clientSwitchHistoryID    = this.client.connect('switch-history', Lang.bind(this, this.onClientSwitchHistory));
-                this.clientTrackingID         = this.client.connect('tracking',       Lang.bind(this, this.onClientTracking));
-                this.clientDeleteHistoryID    = this.client.connect('delete-history', Lang.bind(this, this.onClientDeleteHistory));
-
-                this.settingsMaxSizeChangedID = this.settings.connect('changed::max-displayed-history-size', Lang.bind(this, this.createHistoryItems));
+                this.client = GPaste.Client.new_finish(result);
 
                 //
-                // Applet menu
+                // Watch client signals
 
-                let i = -1;
-                if (this.compareVersion("3.18") != -1) {
-                    this._applet_context_menu.addMenuItem(this.cmitemUI, ++i);
-                }
+                // Client
+                this.signalHandlers.client.push(this.client.connect('update',         Lang.bind(this, this._onClientUpdate)));
+                this.signalHandlers.client.push(this.client.connect('show-history',   Lang.bind(this, this._onClientShowHistory)));
+                this.signalHandlers.client.push(this.client.connect('switch-history', Lang.bind(this, this._onClientSwitchHistory)));
+                this.signalHandlers.client.push(this.client.connect('tracking',       Lang.bind(this, this._onClientTracking)));
+                this.signalHandlers.client.push(this.client.connect('delete-history', Lang.bind(this, this._onClientDeleteHistory)));
 
-                this._applet_context_menu.addMenuItem(this.cmitemSelectHistory, ++i);
-                this._applet_context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), ++i);
+                // Client settings
+                this.signalHandlers.clientSettings.push(this.clientSettings.connect('changed::max-displayed-history-size', Lang.bind(this, this._createHistoryItems)));
 
-                this.client.get_history_name(Lang.bind(this, function(client, result) {
-                    this.historyName = this.client.get_history_name_finish(result);
-                }));
-                this.client.list_histories(Lang.bind(this, this.onClientHistoriesListed));
+                //
+                // Init
 
+                // Get history list
+                this.client.list_histories(Lang.bind(this, this._onClientHistoriesListed));
+
+                // Get tracking status
                 this.mitemTrack.setToggleState(this.client.is_active());
 
-                //
-                //
+                // Get current history name
+                this.client.get_history_name(Lang.bind(this, function(client, result) {
+                    this.historyName = this.client.get_history_name_finish(result);
 
-                this.createHistoryItems();
-                this.populateMenu();
+                    // Load history and populate applet
+                    this._createHistoryItems();
+                    this._populateMenus();
+                }));
             }));
 
             //
@@ -164,12 +164,12 @@ GPasteApplet.prototype = {
      * Compares the current GPaste version with the given version string (only first 2 digits).
      * -1 = older, 0 = same, 1 = newer
      */
-    compareVersion: function(version) {
+    _compareVersion: function(version) {
         version        = version.split(".");
         let curVersion = this.client.get_version().split(".");
         let maxLen     = Math.min(curVersion.length, version.length);
 
-        for (var i = 0; i < maxLen; i++) {
+        for (var i = 0; i < maxLen; ++i) {
             let cv = parseInt(curVersion[i], 10);
             let v  = parseInt(version[i],    10);
             if (cv == v) {
@@ -183,7 +183,7 @@ GPasteApplet.prototype = {
     /*
      * Applet settings were changed
      */
-    onDisplaySettingsUpdated: function() {
+    _onDisplaySettingsUpdated: function() {
         this.mitemSearch.reset();
 
         this.mitemTrack.actor.visible        = this.displayTrackSwitch;
@@ -201,13 +201,13 @@ GPasteApplet.prototype = {
     /*
      * Generate the required number of history items (or delete excessive ones)
      */
-    createHistoryItems: function() {
+    _createHistoryItems: function() {
         let oldSize = this.historyItems.length;
-        let newSize = this.settings.get_max_displayed_history_size();
+        let newSize = this.clientSettings.get_max_displayed_history_size();
 
         if (newSize > oldSize) {
-            for (let index = oldSize; index < newSize; ++index) {
-                this.historyItems[index] = new GPasteHistoryItem.GPasteHistoryItem(this);
+            for (let i = oldSize; i < newSize; ++i) {
+                this.historyItems[i] = new GPasteHistoryItem.GPasteHistoryItem(this);
             }
         }
         else {
@@ -224,9 +224,22 @@ GPasteApplet.prototype = {
     },
 
     /*
-     * Add all necessary menu items to the menu
+     * Add all necessary menu items to the menus
      */
-    populateMenu: function() {
+    _populateMenus: function() {
+        //
+        // Context menu
+
+        let i = -1;
+        if (this._compareVersion("3.18") != -1) {
+            this._applet_context_menu.addMenuItem(this.cmitemUI, ++i);
+        }
+        this._applet_context_menu.addMenuItem(this.cmitemSelectHistory, ++i);
+        this._applet_context_menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem(), ++i);
+
+        //
+        // Primary menu
+
         this.menu.addMenuItem(this.mitemTrack);
         this.menu.addMenuItem(this.mitemSearch);
 
@@ -242,20 +255,23 @@ GPasteApplet.prototype = {
         this.menu.addMenuItem(this.mitemNewItem);
         this.menu.addMenuItem(this.mitemEmptyHistory);
 
-        if (this.compareVersion("3.18.2") != -1) {
+        if (this._compareVersion("3.18.2") != -1) {
             this.menu.addMenuItem(this.msepBottom2);
             this.menu.addMenuItem(this.mitemUI);
         }
 
-        this.onDisplaySettingsUpdated();
+        //
+        // Hide disabled menu items
+        
+        this._onDisplaySettingsUpdated();
     },
 
     /*
      * Refresh the history items
      */
-    refresh: function(resetTextFrom) {
+    refresh: function(startID) {
         if (this.searchResults.length > 0) { // Search field isn't empty
-            this.onSearch();
+            this.search(this.mitemSearch.getText());
         } else {
             this.client.get_history_size(this.historyName, Lang.bind(this, function(client, result) {
                 let size    = client.get_history_size_finish(result);
@@ -265,7 +281,7 @@ GPasteApplet.prototype = {
                     size = maxSize;
                 }
 
-                for (let i = resetTextFrom; i < size; ++i) {
+                for (let i = startID; i < size; ++i) {
                     this.historyItems[i].setIndex(i);
                 }
                 for (let i = size; i < maxSize; ++i) {
@@ -274,11 +290,42 @@ GPasteApplet.prototype = {
 
                 if (size == 0) { // There aren't any history items, display "(empty)"
                     this.mitemHistoryIsEmpty.actor.show();
-                }
-                else {
+                } else {
                     this.mitemHistoryIsEmpty.actor.hide();
                 }
             }));
+        }
+    },
+
+    /*
+     * Search the history for the given string
+     */
+    search: function(searchStr) {
+        searchStr = searchStr.toLowerCase();
+
+        if (searchStr.length > 0) {
+            this.client.search(searchStr, Lang.bind(this, function(client, result) {
+                this.searchResults = client.search_finish(result);
+                let results = this.searchResults.length;
+                let maxSize = this.historyItems.length;
+
+                if (results > maxSize) {
+                    results = maxSize;
+                }
+
+                for (let i = 0; i < results; ++i) {
+                    this.historyItems[i].setIndex(this.searchResults[i]);
+                }
+                for (let i = results; i < maxSize; ++i) {
+                    this.historyItems[i].setIndex(-1);
+                }
+
+                this.historyItems[0].actor.set_style(null);
+            }));
+        } else {
+            this.searchResults = [];
+            this.refresh(0);
+            this.historyItems[0].actor.set_style("font-weight: bold;");
         }
     },
 
@@ -333,8 +380,8 @@ GPasteApplet.prototype = {
     /*
      * The history has changed
      */
-    onClientUpdate: function(client, action, target, position) {
-        global.log("GPaste applet event: onClientUpdate");
+    _onClientUpdate: function(client, action, target, position) {
+        global.log("GPaste applet event: _onClientUpdate");
 
         switch (target) {
             case GPaste.UpdateTarget.ALL:
@@ -357,8 +404,8 @@ GPasteApplet.prototype = {
     /*
      * GPaste returned the list of histories
      */
-    onClientHistoriesListed: function(client, result) {
-        global.log("GPaste applet event: onClientHistoriesListed");
+    _onClientHistoriesListed: function(client, result) {
+        global.log("GPaste applet event: _onClientHistoriesListed");
 
         let histories = this.client.list_histories_finish(result);
 
@@ -386,8 +433,8 @@ GPasteApplet.prototype = {
     /*
      * A history was deleted
      */
-    onClientDeleteHistory: function(client, name) {
-        global.log("GPaste applet event: onClientDeleteHistory");
+    _onClientDeleteHistory: function(client, name) {
+        global.log("GPaste applet event: _onClientDeleteHistory");
 
         for (let n in this.historyListItems) {
             if (n == name) {
@@ -400,8 +447,8 @@ GPasteApplet.prototype = {
     /*
      * Show menu
      */
-    onClientShowHistory: function() {
-        global.log("GPaste applet event: onClientShowHistory");
+    _onClientShowHistory: function() {
+        global.log("GPaste applet event: _onClientShowHistory");
 
         this.menu.open();
     },
@@ -409,10 +456,10 @@ GPasteApplet.prototype = {
     /*
      *
      */
-    onClientSwitchHistory: function() {
-        global.log("GPaste applet event: onClientSwitchHistory");
+    _onClientSwitchHistory: function() {
+        global.log("GPaste applet event: _onClientSwitchHistory");
 
-        this.client.list_histories(Lang.bind(this, this.onClientHistoriesListed));
+        this.client.list_histories(Lang.bind(this, this._onClientHistoriesListed));
 
         this.client.get_history_name(Lang.bind(this, function(client, result) {
             this.historyName = this.client.get_history_name_finish(result);
@@ -429,62 +476,33 @@ GPasteApplet.prototype = {
     /*
      * GPaste's tracking status has changed
      */
-    onClientTracking: function(client, state) {
-        global.log("GPaste applet event: onClientTracking");
+    _onClientTracking: function(client, state) {
+        global.log("GPaste applet event: _onClientTracking");
 
         this.mitemTrack.setToggleState(state);
     },
 
-    /*
-     * User entered search input
-     */
-    onSearch: function() {
-        global.log("GPaste applet event: onSearch");
-
-        let searchStr = this.mitemSearch.entry.get_text().toLowerCase();
-
-        if (searchStr.length > 0) {
-            this.client.search(searchStr, Lang.bind(this, function(client, result) {
-                this.searchResults = client.search_finish(result);
-                let results = this.searchResults.length;
-                let maxSize = this.historyItems.length;
-
-                if (results > maxSize)
-                    results = maxSize;
-
-                for (let i = 0; i < results; ++i) {
-                    this.historyItems[i].setIndex(this.searchResults[i]);
-                }
-                for (let i = results; i < maxSize; ++i) {
-                    this.historyItems[i].setIndex(-1);
-                }
-
-                this.historyItems[0].actor.set_style(null);
-            }));
-        }
-        else {
-            this.searchResults = [];
-            this.refresh(0);
-            this.historyItems[0].actor.set_style("font-weight: bold;");
-        }
-    },
+    //
+    // Overrides
+    // ---------------------------------------------------------------------------------
 
     /*
-     * Applet has been removed, disconnect bindings
+     * Applet has been removed, disconnect signal handlers
      */
     on_applet_removed_from_panel: function() {
         global.log("GPaste applet was removed from panel");
 
-        this.client.disconnect(this.clientUpdateID);
-        this.client.disconnect(this.clientShowID);
-        this.client.disconnect(this.clientTrackingID);
-        this.client.disconnect(this.clientSwitchHistoryID);
-        this.client.disconnect(this.clientDeleteHistoryID);
-        this.settings.disconnect(this.settingsMaxSizeChangedID);
+        for (let i = 0; i < this.signalHandlers.client.length; ++i) {
+            this.client.disconnect(this.signalHandlers.client[i]);
+        }
+
+        for (let i = 0; i < this.signalHandlers.clientSettings.length; ++i) {
+            this.clientSettings.disconnect(this.signalHandlers.clientSettings[i]);
+        }
     },
 
     /*
-     * Display menu
+     * Applet has been clicked, display menu
      */
     on_applet_clicked: function(event) {
         this.menu.toggle();

@@ -16,6 +16,10 @@ GPasteHistoryListItem.prototype = {
         this.histName = name;
     },
 
+    //
+    // Overrides
+    // ---------------------------------------------------------------------------------
+
     /*
      * Select history item
      */

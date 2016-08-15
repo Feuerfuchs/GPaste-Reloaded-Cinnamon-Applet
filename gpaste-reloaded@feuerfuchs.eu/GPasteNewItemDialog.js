@@ -26,7 +26,7 @@ GPasteNewItemDialog.prototype = {
         this.entry.clutter_text.set_single_line_mode(false);
         this.entry.clutter_text.set_line_wrap(true);
         this.entry.clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
-        this.entry.clutter_text.connect('text-changed', Lang.bind(this, this.resizeEntry));
+        this.entry.clutter_text.connect('text-changed', Lang.bind(this, this._resizeEntry));
         this.prevEntryHeight = -1;
 
         this.contentBox = new St.BoxLayout({
@@ -51,7 +51,7 @@ GPasteNewItemDialog.prototype = {
         this.setButtons([
             {
                 label: _("OK"),
-                action: Lang.bind(this, this.onOK)
+                action: Lang.bind(this, this._onOK)
             },
             {
                 label: _("Cancel"),
@@ -62,7 +62,10 @@ GPasteNewItemDialog.prototype = {
         ]);
     },
 
-    calcEntryHeightDiff: function() {
+    /*
+     * Calculate the padding that is added to the text field
+     */
+    _calcEntryHeightDiff: function() {
         let textBackup = this.entry.get_text();
         this.entry.set_text("");
 
@@ -78,7 +81,10 @@ GPasteNewItemDialog.prototype = {
         this.entry.set_text(textBackup);
     },
 
-    resizeEntry: function() {
+    /*
+     * Resize the text field
+     */
+    _resizeEntry: function() {
         let width     = this.entry.get_width();
         let themeNode = this.entry.get_theme_node();
         width = themeNode.adjust_for_width(width);
@@ -93,17 +99,32 @@ GPasteNewItemDialog.prototype = {
         }
     },
 
-    onOK: function() {
+    //
+    // Events
+    // ---------------------------------------------------------------------------------
+
+    /*
+     * The OK button was pressed
+     */
+    _onOK: function() {
         this.close(global.get_current_time());
         this.callback(this.entry.get_text());
 
         this.entry.set_text("");
     },
 
+    //
+    // Overrides
+    // ---------------------------------------------------------------------------------
+
+    /*
+     * Overridden so the text fields padding will be calculated as soon as
+     * the dialog is displayed (it doesn't work correctly if it is hidden)
+     */
     open: function(timestamp) {
         ModalDialog.ModalDialog.prototype.open.call(this, timestamp);
 
-        this.calcEntryHeightDiff();
+        this._calcEntryHeightDiff();
         global.stage.set_key_focus(this.entry);
     }
 };

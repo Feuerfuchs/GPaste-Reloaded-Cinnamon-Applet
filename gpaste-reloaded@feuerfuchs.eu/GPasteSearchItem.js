@@ -53,7 +53,7 @@ GPasteSearchItem.prototype = {
         //
         //
 
-        this.entry.clutter_text.connect('text-changed', Lang.bind(this, this.onTextChanged));
+        this.entry.clutter_text.connect('text-changed', Lang.bind(this, this._onTextChanged));
 
         //
         // Binding ID of the remove icon
@@ -69,10 +69,10 @@ GPasteSearchItem.prototype = {
     },
 
     /*
-     * Append string to current search string
+     * Get current input
      */
-    appendText: function(text) {
-        this.entry.set_text(this.entry.get_text() + text);
+    getText: function() {
+        return this.entry.get_text();
     },
 
     //
@@ -82,9 +82,10 @@ GPasteSearchItem.prototype = {
     /*
      * Search string has changed
      */
-    onTextChanged: function(se, prop) {
-        let emptyText = (this.entry.get_text() == '');
-        if (!emptyText) {
+    _onTextChanged: function(se, prop) {
+        let text    = this.entry.get_text();
+        let isEmpty = (text == '');
+        if (!isEmpty) {
             if (this.iconClearClickedID == 0) {
                 this.entry.set_secondary_icon(this.iconClear);
                 this.iconClearClickedID = this.entry.connect('secondary-icon-clicked', Lang.bind(this, this.reset));
@@ -97,7 +98,7 @@ GPasteSearchItem.prototype = {
                 this.iconClearClickedID = 0;
             }
         }
-        this.emit('text-changed');
+        this.emit('text-changed', text);
     },
 
     /*
