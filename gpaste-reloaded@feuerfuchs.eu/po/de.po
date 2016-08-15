@@ -5,49 +5,55 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: gpaste-reloaded@feuerfuchs.eu 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-14 18:22+0200\n"
-"PO-Revision-Date: 2016-08-14 18:23+0200\n"
+"POT-Creation-Date: 2016-08-15 13:49+0200\n"
+"PO-Revision-Date: 2016-08-15 13:52+0200\n"
 "Last-Translator: \n"
-"Language-Team: \n"
+"Language-Team: Feuerfuchs\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
-#: applet.js:42
+#: applet.js:39
 msgid "GPaste clipboard"
 msgstr "GPaste Clipboard"
 
 #. gpaste-reloaded@feuerfuchs.eu->settings-schema.json->gpaste-
 #. settings->description
-#: applet.js:47 applet.js:80
+#: applet.js:44 applet.js:82
 msgid "GPaste Main Program"
 msgstr "GPaste Hauptprogramm"
 
-#: applet.js:50
+#: applet.js:49
 msgid "Select History"
 msgstr "History auswählen"
 
-#: applet.js:59
+#: applet.js:58
 msgid "Track clipboard changes"
 msgstr "Änderungen verfolgen"
 
-#: applet.js:67
+#: applet.js:66
 msgid "(Empty)"
 msgstr "(Leer)"
 
-#: applet.js:72
+#: applet.js:69
+msgid "(No results)"
+msgstr "(Keine Ergebnisse)"
+
+#: applet.js:74
 msgid "New item"
 msgstr "Neuer Eintrag"
 
-#: applet.js:75
+#: applet.js:77
 msgid "Empty history"
 msgstr "History leeren"
 
-#: applet.js:310
+#: applet.js:369
 msgid "Do you really want to empty the current history?"
 msgstr "Möchtest du wirklich die aktuelle History leeren?"
 

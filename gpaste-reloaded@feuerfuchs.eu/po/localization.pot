@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-14 18:22+0200\n"
+"POT-Creation-Date: 2016-08-15 13:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,37 +17,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-#: applet.js:42
+#: applet.js:39
 msgid "GPaste clipboard"
 msgstr ""
 
 #. gpaste-reloaded@feuerfuchs.eu->settings-schema.json->gpaste-
 #. settings->description
-#: applet.js:47 applet.js:80
+#: applet.js:44 applet.js:82
 msgid "GPaste Main Program"
 msgstr ""
 
-#: applet.js:50
+#: applet.js:49
 msgid "Select History"
 msgstr ""
 
-#: applet.js:59
+#: applet.js:58
 msgid "Track clipboard changes"
 msgstr ""
 
-#: applet.js:67
+#: applet.js:66
 msgid "(Empty)"
 msgstr ""
 
-#: applet.js:72
+#: applet.js:69
+msgid "(No results)"
+msgstr ""
+
+#: applet.js:74
 msgid "New item"
 msgstr ""
 
-#: applet.js:75
+#: applet.js:77
 msgid "Empty history"
 msgstr ""
 
-#: applet.js:310
+#: applet.js:369
 msgid "Do you really want to empty the current history?"
 msgstr ""
 
