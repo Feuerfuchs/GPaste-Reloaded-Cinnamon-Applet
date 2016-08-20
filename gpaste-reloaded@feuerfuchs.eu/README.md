@@ -12,7 +12,7 @@ This is a completely re-written GPaste applet based on the [gnome shell extensio
 
 For this applet to work, it is necessary that the GPaste daemon is installed!
 * If you use an Arch-based distro, that means you have to install the package "gpaste"
-* If you use a Ubuntu-based distro, you have to install the package "gpaste-applet"
+* If you use a Ubuntu-based distro, install the packages "gpaste" and "gpaste-applet" and *"[...] then reboot. you'll have a new gpaste indicator on the right side by the clock. to remove it and keep this applet working, just remove gpaste-applet deb file, and place on hold this deb: gir1.2-gpaste-4.0 eg: sudo apt hold gir1.2-gpaste-4.0"* (Info by user infected_)
 * Other distros: Check if there's a package for GPaste. If there isn't, check the GitHub page linked below.
 
 GPaste Github page: https://github.com/Keruspe/GPaste
