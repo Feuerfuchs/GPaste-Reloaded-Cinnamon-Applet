@@ -1,16 +1,19 @@
 GPaste is a clipboard management tool. This applet lets you access your clipboard through an icon in the panel.
 
 This is a completely re-written GPaste applet based on the [gnome shell extension](https://github.com/Keruspe/GPaste/tree/master/src/gnome-shell). It offers the following features:
-- Search for entries
-- Access the native GPaste GUI
-- Support for multiple histories
-- Manually add entries to the history
-- Unlimited instances
+* Search for entries
+* Access the native GPaste GUI
+* Support for multiple histories
+* Manually add entries to the history
+* Unlimited instances
 
 
 # Installation
 
 For this applet to work, it is necessary that the GPaste daemon is installed!
+* If you use an Arch-based distro, that means you have to install the package "gpaste"
+* If you use a Ubuntu-based distro, you have to install the package "gpaste-applet"
+* Other distros: Check if there's a package for GPaste. If there isn't, check the GitHub page linked below.
 
 GPaste Github page: https://github.com/Keruspe/GPaste
 
