@@ -3,6 +3,7 @@ const uuid                  = imports.applet.uuid;
 const Util                  = imports.misc.util;
 const Lang                  = imports.lang;
 const St                    = imports.gi.St;
+const Main                  = imports.ui.main;
 const PopupMenu             = imports.ui.popupMenu;
 const Applet                = imports.ui.applet;
 const Settings              = imports.ui.settings;
@@ -38,6 +39,7 @@ GPasteApplet.prototype = {
 
             this.set_applet_icon_symbolic_name("edit-paste");
             this.set_applet_tooltip(_("GPaste clipboard"));
+            Main.systrayManager.registerRole("gpaste-applet", uuid);
 
             //
             // Context menu items
