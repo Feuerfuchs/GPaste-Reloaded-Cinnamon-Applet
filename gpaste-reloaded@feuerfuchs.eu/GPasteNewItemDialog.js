@@ -18,7 +18,7 @@ GPasteNewItemDialog.prototype = {
     _init: function(callback) {
         ModalDialog.ModalDialog.prototype._init.call(this, { styleClass: 'gpaste__new-item-dialog' });
 
-        this.callback = callback;
+        this._callback = callback;
         this.entry = new St.Entry({
             name: 'GPasteNewItemEntry'
         });
@@ -27,7 +27,7 @@ GPasteNewItemDialog.prototype = {
         this.entry.clutter_text.set_line_wrap(true);
         this.entry.clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
         this.entry.clutter_text.connect('text-changed', Lang.bind(this, this._resizeEntry));
-        this.prevEntryHeight = -1;
+        this._prevEntryHeight = -1;
 
         this.contentBox = new St.BoxLayout({
             vertical:   true,
@@ -66,15 +66,15 @@ GPasteNewItemDialog.prototype = {
      * Calculate the padding that is added to the text field
      */
     _calcEntryHeightDiff: function() {
-        let textBackup = this.entry.get_text();
+        const textBackup = this.entry.get_text();
         this.entry.set_text("");
 
-        let width      = this.entry.get_width();
-        let themeNode  = this.entry.get_theme_node();
+        let width       = this.entry.get_width();
+        const themeNode = this.entry.get_theme_node();
         width = themeNode.adjust_for_width(width);
 
-        let [minHeight,         natHeight]         = this.entry.clutter_text.get_preferred_height(width);
-        let [minHeightAdjusted, natHeightAdjusted] = themeNode.adjust_preferred_height(minHeight, natHeight);
+        const [minHeight,         natHeight]         = this.entry.clutter_text.get_preferred_height(width);
+        const [minHeightAdjusted, natHeightAdjusted] = themeNode.adjust_preferred_height(minHeight, natHeight);
 
         this.entryHeightDiff = natHeightAdjusted - natHeight;
 
@@ -85,15 +85,15 @@ GPasteNewItemDialog.prototype = {
      * Resize the text field
      */
     _resizeEntry: function() {
-        let width     = this.entry.get_width();
-        let themeNode = this.entry.get_theme_node();
+        let width       = this.entry.get_width();
+        const themeNode = this.entry.get_theme_node();
         width = themeNode.adjust_for_width(width);
 
-        let [minHeight, natHeight] = this.entry.clutter_text.get_preferred_height(width);
-        let height                 = natHeight + this.entryHeightDiff;
+        const [minHeight, natHeight] = this.entry.clutter_text.get_preferred_height(width);
+        const height                 = natHeight + this.entryHeightDiff;
 
-        if (this.prevEntryHeight != height) {
-            this.prevEntryHeight = height;
+        if (this._prevEntryHeight != height) {
+            this._prevEntryHeight = height;
 
             this.entry.set_height(height);
         }
@@ -108,7 +108,7 @@ GPasteNewItemDialog.prototype = {
      */
     _onOK: function() {
         this.close(global.get_current_time());
-        this.callback(this.entry.get_text());
+        this._callback(this.entry.get_text());
 
         this.entry.set_text("");
     },

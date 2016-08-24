@@ -17,7 +17,7 @@ GPasteHistoryItem.prototype = {
     _init: function(applet) {
         PopupMenu.PopupBaseMenuItem.prototype._init.call(this);
 
-        this.applet = applet;
+        this._applet = applet;
 
         //
         // Label
@@ -27,12 +27,12 @@ GPasteHistoryItem.prototype = {
         this.addActor(this.label);
 
         this.setTextLength();
-        this.settingsChangedID = this.applet.clientSettings.connect('changed::element-size', Lang.bind(this, this.setTextLength));
+        this._settingsChangedID = this._applet.clientSettings.connect('changed::element-size', Lang.bind(this, this.setTextLength));
 
         //
         // Delete button
 
-        let iconDelete = new St.Icon({
+        const iconDelete = new St.Icon({
             icon_name:   'edit-delete',
             icon_type:   St.IconType.SYMBOLIC,
             style_class: 'popup-menu-icon'
@@ -51,17 +51,17 @@ GPasteHistoryItem.prototype = {
      * Set max text length using GPaste's setting
      */
     setTextLength: function() {
-        this.label.clutter_text.set_max_length(this.applet.clientSettings.get_element_size());
+        this.label.clutter_text.set_max_length(this._applet.clientSettings.get_element_size());
     },
 
     /*
      * Set specified index and get respective history item's content
      */
     setIndex: function(index) {
-        this.index = index;
+        this._index = index;
 
         if (index != -1) {
-            this.applet.client.get_element(index, Lang.bind(this, function(client, result) {
+            this._applet.client.get_element(index, Lang.bind(this, function(client, result) {
                 this.label.set_text(client.get_element_finish(result).replace(/[\t\n\r]/g, ''));
             }));
 
@@ -76,7 +76,7 @@ GPasteHistoryItem.prototype = {
      * Remove history item
      */
     remove: function() {
-        this.applet.client.delete(this.index, null);
+        this._applet.client.delete(this._index, null);
     },
 
     //
@@ -87,7 +87,7 @@ GPasteHistoryItem.prototype = {
      * History item has been removed, disconnect bindings
      */
     _onDestroy: function() {
-        this.applet.clientSettings.disconnect(this.settingsChangedID);
+        this._applet.clientSettings.disconnect(this._settingsChangedID);
     },
 
     //
@@ -98,7 +98,7 @@ GPasteHistoryItem.prototype = {
      * Select history item
      */
     activate: function(event) {
-        this.applet.client.select(this.index, null);
-        this.applet.menu.toggle();
+        this._applet.client.select(this._index, null);
+        this._applet.menu.toggle();
     }
 };

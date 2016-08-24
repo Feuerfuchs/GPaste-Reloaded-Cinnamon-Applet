@@ -83,9 +83,8 @@ GPasteSearchItem.prototype = {
      * Search string has changed
      */
     _onTextChanged: function(se, prop) {
-        let text    = this.entry.get_text();
-        let isEmpty = (text == '');
-        if (!isEmpty) {
+        const text = this.entry.get_text();
+        if (text !== '') {
             if (this.iconClearClickedID == 0) {
                 this.entry.set_secondary_icon(this.iconClear);
                 this.iconClearClickedID = this.entry.connect('secondary-icon-clicked', Lang.bind(this, this.reset));
