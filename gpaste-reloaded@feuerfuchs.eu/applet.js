@@ -13,7 +13,6 @@ const SignalManager         = imports.misc.signalManager;
 const GPaste                = imports.gi.GPaste;
 
 const AppletDir             = imports.ui.appletManager.applets[uuid];
-const GPasteMenu            = AppletDir.GPasteMenu;
 const GPasteSearchItem      = AppletDir.GPasteSearchItem;
 const GPasteHistoryItem     = AppletDir.GPasteHistoryItem;
 const GPasteHistoryListItem = AppletDir.GPasteHistoryListItem;
@@ -55,7 +54,7 @@ GPasteApplet.prototype = {
             // Primary menu
 
             this.menuManager          = new PopupMenu.PopupMenuManager(this);
-            this.menu                 = new GPasteMenu.GPasteMenu(this, orientation);
+            this.menu                 = new Applet.AppletPopupMenu(this, orientation);
             this.menuManager.addMenu(this.menu);
 
             this.mitemTrack           = new PopupMenu.PopupSwitchMenuItem(_("Track clipboard changes"), true);
