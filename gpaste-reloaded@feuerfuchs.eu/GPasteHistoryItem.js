@@ -2,6 +2,7 @@ const Lang      = imports.lang;
 const St        = imports.gi.St;
 const PopupMenu = imports.ui.popupMenu;
 const Pango     = imports.gi.Pango;
+const Clutter   = imports.gi.Clutter;
 
 const GPaste    = imports.gi.GPaste;
 
@@ -45,6 +46,23 @@ GPasteHistoryItem.prototype = {
         //
 
         this.actor.connect('destroy', Lang.bind(this, this._onDestroy));
+    },
+
+    /*
+     * Override key press event
+     */
+    _onKeyPressEvent: function(actor, event) {
+        let symbol = event.get_key_symbol();
+
+        if (symbol == Clutter.KEY_space || symbol == Clutter.KEY_Return) {
+            this.activate(event);
+            return true;
+        } else if (symbol == Clutter.KEY_Delete || symbol == Clutter.KEY_BackSpace) {
+            this.remove();
+            return true;
+        }
+
+        return false;
     },
 
     /*
